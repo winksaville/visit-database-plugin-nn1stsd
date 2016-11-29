@@ -1,0 +1,6 @@
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/edit_cache.dir
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/rebuild_cache.dir
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/Inn1stsdDatabase.dir
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/Mnn1stsdDatabase.dir
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/Enn1stsdDatabase_ser.dir
+/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles/Enn1stsdDatabase_par.dir
