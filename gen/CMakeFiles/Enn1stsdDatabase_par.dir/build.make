@@ -170,9 +170,7 @@ Enn1stsdDatabase_par_EXTERNAL_OBJECTS =
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: CMakeFiles/Enn1stsdDatabase_par.dir/build.make
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /usr/lib64/openmpi/libmpi_cxx.so
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /usr/lib64/openmpi/libmpi.so
-/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /opt/visit/2.12.0/linux-x86_64/lib/usr/opt/visit/2.12.0/linux-x86_64/lib/lib64/opt/visit/2.12.0/linux-x86_64/lib/openmpi/opt/visit/2.12.0/linux-x86_64/lib/libmpi_cxx.so
-/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /opt/visit/2.12.0/linux-x86_64/lib/usr/opt/visit/2.12.0/linux-x86_64/lib/lib64/opt/visit/2.12.0/linux-x86_64/lib/openmpi/opt/visit/2.12.0/linux-x86_64/lib/libmpi.so
-/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /opt/visit/2.12.0/linux-x86_64/lib/home/opt/visit/2.12.0/linux-x86_64/lib/wink/opt/visit/2.12.0/linux-x86_64/lib/aur/opt/visit/2.12.0/linux-x86_64/lib/visit-build/opt/visit/2.12.0/linux-x86_64/lib/src/opt/visit/2.12.0/linux-x86_64/lib/thirdparty/opt/visit/2.12.0/linux-x86_64/lib/zlib/opt/visit/2.12.0/linux-x86_64/lib/1.2.7/opt/visit/2.12.0/linux-x86_64/lib/linux-x86_64_gcc-6.2/opt/visit/2.12.0/linux-x86_64/lib/lib/opt/visit/2.12.0/linux-x86_64/lib/libz.so
+/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: /opt/visit/2.12.0/linux-x86_64/lib/libz.so
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so: CMakeFiles/Enn1stsdDatabase_par.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX shared library /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libEnn1stsdDatabase_par.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Enn1stsdDatabase_par.dir/link.txt --verbose=$(VERBOSE)

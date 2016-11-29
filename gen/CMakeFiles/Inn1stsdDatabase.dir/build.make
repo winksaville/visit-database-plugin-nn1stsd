@@ -90,7 +90,7 @@ Inn1stsdDatabase_EXTERNAL_OBJECTS =
 
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so: CMakeFiles/Inn1stsdDatabase.dir/nn1stsdPluginInfo.C.o
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so: CMakeFiles/Inn1stsdDatabase.dir/build.make
-/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so: /opt/visit/2.12.0/linux-x86_64/lib/home/opt/visit/2.12.0/linux-x86_64/lib/wink/opt/visit/2.12.0/linux-x86_64/lib/aur/opt/visit/2.12.0/linux-x86_64/lib/visit-build/opt/visit/2.12.0/linux-x86_64/lib/src/opt/visit/2.12.0/linux-x86_64/lib/thirdparty/opt/visit/2.12.0/linux-x86_64/lib/zlib/opt/visit/2.12.0/linux-x86_64/lib/1.2.7/opt/visit/2.12.0/linux-x86_64/lib/linux-x86_64_gcc-6.2/opt/visit/2.12.0/linux-x86_64/lib/lib/opt/visit/2.12.0/linux-x86_64/lib/libz.so
+/home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so: /opt/visit/2.12.0/linux-x86_64/lib/libz.so
 /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so: CMakeFiles/Inn1stsdDatabase.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/wink/prgs/visit-plugins/nn1stsd/gen/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX shared library /home/wink/.visit/2.12.0/linux-x86_64/plugins/databases/libInn1stsdDatabase.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Inn1stsdDatabase.dir/link.txt --verbose=$(VERBOSE)
