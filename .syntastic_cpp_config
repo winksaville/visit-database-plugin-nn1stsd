@@ -1,0 +1,12 @@
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/avt/Database/Formats
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/avt/Database/Database
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/avt/Database/Ghost
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/avt/Pipeline/Data
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/avt/DBAtts/MetaData
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/common/utility
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/common/Exceptions/Pipeline
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/common/Exceptions/Database
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/common/misc
+-I /opt/visit/2.12.0/linux-x86_64/include/visit/common/state
+
+-I /opt/visit/2.12.0/linux-x86_64/include/vtk/vtk-6.1
