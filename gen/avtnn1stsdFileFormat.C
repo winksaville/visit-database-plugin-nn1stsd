@@ -55,6 +55,7 @@
 #include <Expression.h>
 
 #include <InvalidVariableException.h>
+#include <InvalidDBTypeException.h>
 
 #include <stdio.h>
 #include <DebugStream.h>
@@ -76,6 +77,10 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
     // INITIALIZE DATA MEMBERS
     printf("avtnn1stsdFileFormat::ctor filename=%s\n", filename);
     debug5 << "avtnn1stsdFileFormat::ctor:+ filename=" << filename << endl;
+
+    mInitialized = false;
+    mFileName = filename;
+
     debug5 << "avtnn1stsdFileFormat::ctor:- filename=" << filename << endl;
 }
 
@@ -350,4 +355,52 @@ avtnn1stsdFileFormat::GetVectorVar(const char *varname)
     // delete [] one_entry;
     // return rv;
     //
+}
+
+// ****************************************************************************
+//  Method: OpenFile
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::OpenFile(void)
+{
+    printf("avtnn1stsdFileFormat::OpenFile filename=%s\n", filename);
+    debug5 << "avtnn1stsdFileFormat::OpenFile:+ filename='" << filename << "'" << endl;
+
+    if (mFileName != NULL) {
+      mFile.open(mFileName, ios::in);
+      if (mFile.is_open()) {
+        std::stringstream s;
+        s << "avtnn1stsdFileFormat::OpenFile opened '" << filename << "'" << endl;
+        debug1 << s.str();
+        cerr << s.str();
+      } else {
+        std::stringstream s;
+        s << "avtnn1stsdFileFormat::OpenFile: error opening '"
+          << mFileName << "' err=" << strerror(errno) << endl;
+        debug1 << s.str();
+        cerr << s.str();
+        EXCEPTION1(InvalidDBTypeException, s.str().c_str());
+      }
+
+    } else {
+      debug5 << "avtnn1stsdFileFormat::OpenFile:- mFileName is NULL" << endl;
+    }
+
+    debug5 << "avtnn1stsdFileFormat::OpenFile:- filename='" << filename << "'" << endl;
+}
+
+// ****************************************************************************
+//  Method: Override ActivateTimestep
+//  Used for delayed initialization, especially opening the file
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::ActivateTimestep(void)
+{
+    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:+" << endl;
+
+    Initialize();
+
+    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:-" << endl;
 }

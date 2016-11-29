@@ -45,6 +45,7 @@
 #define AVT_nn1stsd_FILE_FORMAT_H
 
 #include <avtSTSDFileFormat.h>
+#include <DebugStream.h>
 
 
 // ****************************************************************************
@@ -88,10 +89,29 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
     virtual vtkDataArray  *GetVar(const char *);
     virtual vtkDataArray  *GetVectorVar(const char *);
 
+    void          ActivateTimestep(void) override;
+
   protected:
     // DATA MEMBERS
+    const char* fileName;
 
     virtual void           PopulateDatabaseMetaData(avtDatabaseMetaData *);
+
+    void                   OpenFile(void);
+
+    void Initialize() {
+      if (!mInitialized && (mFileName != NULL)) {
+        debug5 << "Initializing" << endl;
+        OpenFile();
+        mInitialized = mFile.is_open();
+        debug5 << "Initializing mInitialized=" << mInitialized << endl;
+      }
+    }
+
+  private:
+    ifstream mFile;
+    const char* mFileName = NULL;
+    bool mInitialized = false;
 };
 
 
