@@ -56,6 +56,7 @@
 
 #include <InvalidVariableException.h>
 
+#include <stdio.h>
 
 using     std::string;
 
@@ -72,6 +73,7 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
     : avtSTSDFileFormat(filename)
 {
     // INITIALIZE DATA MEMBERS
+    printf("avtnn1stsdFileFormat::ctor filename=%s\n", filename);
 }
 
 
