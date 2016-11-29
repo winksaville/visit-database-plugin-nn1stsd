@@ -57,6 +57,7 @@
 #include <InvalidVariableException.h>
 
 #include <stdio.h>
+#include <DebugStream.h>
 
 using     std::string;
 
@@ -74,6 +75,8 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
 {
     // INITIALIZE DATA MEMBERS
     printf("avtnn1stsdFileFormat::ctor filename=%s\n", filename);
+    debug5 << "avtnn1stsdFileFormat::ctor:+ filename=" << filename << endl;
+    debug5 << "avtnn1stsdFileFormat::ctor:- filename=" << filename << endl;
 }
 
 
@@ -94,6 +97,8 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
 void
 avtnn1stsdFileFormat::FreeUpResources(void)
 {
+    debug5 << "avtnn1stsdFileFormat::FreeUpResources:+" << endl;
+    debug5 << "avtnn1stsdFileFormat::FreeUpResources:-" << endl;
 }
 
 
@@ -113,6 +118,9 @@ avtnn1stsdFileFormat::FreeUpResources(void)
 void
 avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
 {
+    printf("avtnn1stsdFileFormat::PolulateDatabaseMetaData:+\n");
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << endl;
+
     //
     // CODE TO ADD A MESH
     //
@@ -213,6 +221,8 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
     //KineticEnergy_expr.SetDefinition("0.5*(momentum*momentum)/(rho*rho)");
     //KineticEnergy_expr.SetType(Expression::ScalarMeshVar);
     //md->AddExpression(&KineticEnergy_expr);
+    printf("avtnn1stsdFileFormat::PolulateDatabaseMetaData:-\n");
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << endl;
 }
 
 
