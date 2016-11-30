@@ -106,12 +106,13 @@ class avtnn1stsdFileFormat : public avtMTMDFileFormat
     void                   DumpData(void);
 
     void Initialize() {
+      debug5 << "Initialized:+ mInitialized=" << mInitialized << " filename=" << filename << endl;
       if (!mInitialized && (filename != NULL)) {
-        debug5 << "Initializing" << endl;
         OpenFile();
         mInitialized = mFile.is_open();
-        debug5 << "Initializing mInitialized=" << mInitialized << endl;
+        debug5 << "Initialize: mInitialized=" << mInitialized << endl;
       }
+      debug5 << "Initialized:- mInitialized=" << mInitialized << " filename=" << filename << endl;
     }
 
     ifstream mFile;

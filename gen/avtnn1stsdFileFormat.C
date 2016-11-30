@@ -74,14 +74,13 @@ using     std::string;
 //
 // ****************************************************************************
 
-avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
-    : avtMTMDFileFormat(filename)
+avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *fn)
+    : avtMTMDFileFormat(fn)
 {
     // INITIALIZE DATA MEMBERS
     debug5 << "avtnn1stsdFileFormat::ctor:+ filename=" << filename << endl;
 
     mInitialized = false;
-    filename = filename;
 
     debug5 << "avtnn1stsdFileFormat::ctor:- filename=" << filename << endl;
 }
@@ -152,9 +151,11 @@ avtnn1stsdFileFormat::FreeUpResources(void)
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int timeState)
+avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int timestate)
 {
-    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << endl;
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << " ts=" << timestate << endl;
+
+    Initialize();
 
     ReadFile();
 
@@ -260,7 +261,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int time
     //KineticEnergy_expr.SetType(Expression::ScalarMeshVar);
     //md->AddExpression(&KineticEnergy_expr);
 
-    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << endl;
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << " ts=" << timestate << endl;
 }
 
 
@@ -289,7 +290,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int time
 vtkDataSet *
 avtnn1stsdFileFormat::GetMesh(int timestate, int domain, const char *meshname)
 {
-    debug5 << "avtnn1stsdFileFormat::GetMesh:+ " << meshname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetMesh:+ ts=" << timestate << " dom=" << domain << " mn=" << meshname << endl;
 
     if (strcmp(meshname, mMeshName) != 0) {
       EXCEPTION1(InvalidVariableException, meshname);
@@ -320,7 +321,7 @@ avtnn1stsdFileFormat::GetMesh(int timestate, int domain, const char *meshname)
         verts->InsertCellPoint(i);
     }
 
-    debug5 << "avtnn1stsdFileFormat::GetMesh:- " << meshname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetMesh:+ ts=" << timestate << " dom=" << domain << " mn=" << meshname << endl;
     return pPolyData;
 }
 
@@ -349,7 +350,7 @@ avtnn1stsdFileFormat::GetMesh(int timestate, int domain, const char *meshname)
 vtkDataArray *
 avtnn1stsdFileFormat::GetVar(int timestate, int domain, const char *varname)
 {
-    debug5 << "avtnn1stsdFileFormat::GetVar:+ " << varname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetVar:+ ts=" << timestate << " dom=" << domain << " vn=" << varname << endl;
 
     //
     // If you have a file format where variables don't apply (for example a
@@ -383,7 +384,7 @@ avtnn1stsdFileFormat::GetVar(int timestate, int domain, const char *varname)
       rv->SetTuple1(i, val);
     }
 
-    debug5 << "avtnn1stsdFileFormat::GetVar:- " << varname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetVar:+ ts=" << timestate << " dom=" << domain << " vn=" << varname << endl;
     return rv;
 }
 
@@ -471,7 +472,7 @@ avtnn1stsdFileFormat::OpenFile(void)
       }
 
     } else {
-      debug5 << "avtnn1stsdFileFormat::OpenFile:- mFileName is NULL" << endl;
+      debug5 << "avtnn1stsdFileFormat::OpenFile:  mFileName is NULL" << endl;
     }
 
     debug5 << "avtnn1stsdFileFormat::OpenFile:- filename='" << filename << "'" << endl;
@@ -488,16 +489,16 @@ avtnn1stsdFileFormat::CloseFile(void)
 
     if (mFile.is_open()) {
       mFile.close();
-      debug5 << "avtnn1stsdFileFormat::CloseFile:- " << filename << " closed " << endl;
+      debug5 << "avtnn1stsdFileFormat::CloseFile:  " << filename << " closed " << endl;
     } else {
-      debug5 << "avtnn1stsdFileFormat::CloseFile:- " << filename << " is not open" << endl;
+      debug5 << "avtnn1stsdFileFormat::CloseFile:  " << filename << " is not open" << endl;
     }
 
     debug5 << "avtnn1stsdFileFormat::CloseFile:- filename='" << filename << "'" << endl;
 }
 
 // ****************************************************************************
-//  Method: OpenFile
+//  Method: ReadFile
 // ****************************************************************************
 
 void
