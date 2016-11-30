@@ -97,7 +97,11 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
 
     virtual void           PopulateDatabaseMetaData(avtDatabaseMetaData *);
 
+  private:
+    void                   ReadFile(void);
     void                   OpenFile(void);
+    void                   DumpVarNames(void);
+    void                   DumpData(void);
 
     void Initialize() {
       if (!mInitialized && (mFileName != NULL)) {
@@ -108,10 +112,12 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
       }
     }
 
-  private:
     ifstream mFile;
     const char* mFileName = NULL;
     bool mInitialized = false;
+    std::vector< std::vector<float> > mData;
+    std::vector< std::string > mVariableNames;
+    bool mFileRead = false;
 };
 
 

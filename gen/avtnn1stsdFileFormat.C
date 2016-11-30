@@ -126,26 +126,30 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
     printf("avtnn1stsdFileFormat::PolulateDatabaseMetaData:+\n");
     debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << endl;
 
-    //
-    // CODE TO ADD A MESH
-    //
-    // string meshname = ...
-    //
+    ReadFile();
+
+    string meshname = "NN";
+
     // AVT_RECTILINEAR_MESH, AVT_CURVILINEAR_MESH, AVT_UNSTRUCTURED_MESH,
     // AVT_POINT_MESH, AVT_SURFACE_MESH, AVT_UNKNOWN_MESH
-    // avtMeshType mt = AVT_RECTILINEAR_MESH;
-    //
-    // int nblocks = 1;  <-- this must be 1 for STSD
-    // int block_origin = 0;
-    // int spatial_dimension = 2;
-    // int topological_dimension = 2;
-    // double *extents = NULL;
+    avtMeshType mt = AVT_POINT_MESH;
+
+    int nblocks = 1;  // this must be 1 for STSD
+    int block_origin = 0;
+    int spatial_dimension = 3;
+    int topological_dimension = 0; // In avtPlainTextFileFormat.C this is a 1 not 0
+    double *extents = NULL;
     //
     // Here's the call that tells the meta-data object that we have a mesh:
     //
-    // AddMeshToMetaData(md, meshname, mt, extents, nblocks, block_origin,
-    //                   spatial_dimension, topological_dimension);
-    //
+    AddMeshToMetaData(md, meshname, mt, extents, nblocks, block_origin,
+                       spatial_dimension, topological_dimension);
+
+    // Add scalar names
+    AddScalarVarToMetaData(md, "x", meshname, AVT_NODECENT);
+    AddScalarVarToMetaData(md, "y", meshname, AVT_NODECENT);
+    AddScalarVarToMetaData(md, "z", meshname, AVT_NODECENT);
+    AddScalarVarToMetaData(md, "value", meshname, AVT_NODECENT);
 
     //
     // CODE TO ADD A SCALAR VARIABLE
@@ -388,6 +392,79 @@ avtnn1stsdFileFormat::OpenFile(void)
     }
 
     debug5 << "avtnn1stsdFileFormat::OpenFile:- filename='" << filename << "'" << endl;
+}
+
+// ****************************************************************************
+//  Method: OpenFile
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::DumpVarNames(void)
+{
+  for (int i = 0; i < mVariableNames.size(); i++) {
+    cerr << std::right << setw(8) << mVariableNames[i];
+    cerr << "    ";
+  }
+  cerr << endl;
+}
+
+void
+avtnn1stsdFileFormat::DumpData(void)
+{
+  for (int i = 0; i < mData.size(); i++) {
+    for (int j = 0; j < mData[i].size(); j++) {
+      if (j != 0) cerr << "  ";
+      cerr << std::fixed << std::showpoint << std::right << setw(10) << setprecision(6)
+        << mData[i][j];
+    }
+    cerr << endl;
+  }
+}
+
+void
+avtnn1stsdFileFormat::ReadFile(void)
+{
+    if (mFileRead) {
+      return;
+    }
+
+    // Read each line
+    bool firstRow = true;
+    int num = 0;
+    int numColumns = 0;
+    string line;
+    while (getline(mFile, line)) {
+      //cout << "line " << num << ": " << line << endl;
+
+      // Parse each line, the first line contains
+      // the variable names.
+      std::stringstream s(line);
+      string v;
+      std::vector<float> row;
+      while (s >> v) {
+        if (firstRow) {
+          // Read variable names
+          mVariableNames.push_back(v);
+        } else {
+          // Read a row
+          float fv = atof(v.c_str());
+          row.push_back(fv);
+        }
+      }
+      if (firstRow) {
+        numColumns = mVariableNames.size();
+        firstRow = false;
+      } else {
+        mData.push_back(row);
+      }
+
+      num += 1;
+    }
+
+    DumpVarNames();
+    DumpData();
+
+    mFileRead = true;
 }
 
 // ****************************************************************************
