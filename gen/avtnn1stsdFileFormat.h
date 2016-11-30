@@ -89,7 +89,7 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
     virtual vtkDataArray  *GetVar(const char *);
     virtual vtkDataArray  *GetVectorVar(const char *);
 
-    void          ActivateTimestep(void) override;
+    void                  ActivateTimestep(void) override;
 
   protected:
     // DATA MEMBERS
@@ -114,6 +114,7 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
 
     ifstream mFile;
     const char* mFileName = NULL;
+    const char* mMeshName = NULL;
     bool mInitialized = false;
     std::vector< std::vector<float> > mData;
     std::vector< std::string > mVariableNames;

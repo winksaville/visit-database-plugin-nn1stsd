@@ -44,6 +44,9 @@
 
 #include <string>
 
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
 #include <vtkFloatArray.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkStructuredGrid.h>
@@ -128,7 +131,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
 
     ReadFile();
 
-    string meshname = "NN";
+    mMeshName = "NN";
 
     // AVT_RECTILINEAR_MESH, AVT_CURVILINEAR_MESH, AVT_UNSTRUCTURED_MESH,
     // AVT_POINT_MESH, AVT_SURFACE_MESH, AVT_UNKNOWN_MESH
@@ -142,14 +145,13 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
     //
     // Here's the call that tells the meta-data object that we have a mesh:
     //
-    AddMeshToMetaData(md, meshname, mt, extents, nblocks, block_origin,
+    AddMeshToMetaData(md, mMeshName, mt, extents, nblocks, block_origin,
                        spatial_dimension, topological_dimension);
 
     // Add scalar names
-    AddScalarVarToMetaData(md, "x", meshname, AVT_NODECENT);
-    AddScalarVarToMetaData(md, "y", meshname, AVT_NODECENT);
-    AddScalarVarToMetaData(md, "z", meshname, AVT_NODECENT);
-    AddScalarVarToMetaData(md, "value", meshname, AVT_NODECENT);
+    for (int i = 0; i < mVariableNames.size(); i++) {
+      AddScalarVarToMetaData(md, mVariableNames[i], mMeshName, AVT_NODECENT);
+    }
 
     //
     // CODE TO ADD A SCALAR VARIABLE
@@ -255,8 +257,41 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
 vtkDataSet *
 avtnn1stsdFileFormat::GetMesh(const char *meshname)
 {
-    //YOU MUST IMPLEMENT THIS
-    return 0;
+    cerr << "avtnn1stsdFileFormat::GetMesh:+ " << meshname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetMesh:+ " << meshname << endl;
+
+    if (strcmp(meshname, mMeshName) != 0) {
+      EXCEPTION1(InvalidVariableException, meshname);
+    }
+
+    // pointmesh
+    vtkPolyData *pPolyData  = vtkPolyData::New();
+    vtkPoints   *pPoints = vtkPoints::New();
+
+    pPoints->SetNumberOfPoints(mData.size());
+    pPolyData->SetPoints(pPoints);
+    pPoints->Delete();
+    for (int i = 0 ; i < mData.size(); i++)
+    {
+        float x = mData[i][0];
+        float y = mData[i][1];
+        float z = mData[i][2];
+        pPoints->SetPoint(i, x, y, z);
+    }
+
+    // TODO: Can we combiine with the loop above?
+    vtkCellArray *verts = vtkCellArray::New();
+    pPolyData->SetVerts(verts);
+    verts->Delete();
+    for (int i = 0 ; i < mData.size(); i++)
+    {
+        verts->InsertNextCell(1);
+        verts->InsertCellPoint(i);
+    }
+
+    cerr << "avtnn1stsdFileFormat::GetMesh:- " << meshname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetMesh:- " << meshname << endl;
+    return pPolyData;
 }
 
 
@@ -279,8 +314,8 @@ avtnn1stsdFileFormat::GetMesh(const char *meshname)
 vtkDataArray *
 avtnn1stsdFileFormat::GetVar(const char *varname)
 {
-    //YOU MUST IMPLEMENT THIS
-    return 0;
+    cerr << "avtnn1stsdFileFormat::GetVar:+ " << varname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetVar:+ " << varname << endl;
 
     //
     // If you have a file format where variables don't apply (for example a
@@ -293,16 +328,30 @@ avtnn1stsdFileFormat::GetVar(const char *varname)
     //
     // If you do have a scalar variable, here is some code that may be helpful.
     //
-    // int ntuples = XXX; // this is the number of entries in the variable.
-    // vtkFloatArray *rv = vtkFloatArray::New();
-    // rv->SetNumberOfTuples(ntuples);
-    // for (int i = 0 ; i < ntuples ; i++)
-    // {
-    //      rv->SetTuple1(i, VAL);  // you must determine value for ith entry.
-    // }
-    //
-    // return rv;
-    //
+    int ntuples = mData.size(); // this is the number of entries in the variable.
+    vtkFloatArray *rv = vtkFloatArray::New();
+    rv->SetNumberOfTuples(ntuples);
+    int variableIdx = -1;
+    for (int i = 0; i < mVariableNames.size(); i++) {
+      if (strcmp(varname, mVariableNames[i].c_str()) == 0) {
+        variableIdx = i;
+        break;
+      }
+    }
+    if (variableIdx < 0) {
+      EXCEPTION1(InvalidVariableException, varname);
+    }
+
+    for (int i = 0 ; i < ntuples ; i++) {
+      float val = mData[i][variableIdx];
+      cerr << "avtnn1stsdFileFormat::GetVar: " << varname << "[" << i << "]="
+        << val << endl;
+      rv->SetTuple1(i, val);
+    }
+
+    cerr << "avtnn1stsdFileFormat::GetVar:- " << varname << endl;
+    debug5 << "avtnn1stsdFileFormat::GetVar:- " << varname << endl;
+    return rv;
 }
 
 
