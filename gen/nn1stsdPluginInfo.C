@@ -82,7 +82,7 @@ nn1stsdGeneralPluginInfo::GetName() const
 const char *
 nn1stsdGeneralPluginInfo::GetVersion() const
 {
-    return "0.0.1";
+    return "0.0.2";
 }
 
 // ****************************************************************************
@@ -101,7 +101,7 @@ nn1stsdGeneralPluginInfo::GetVersion() const
 const char *
 nn1stsdGeneralPluginInfo::GetID() const
 {
-    return "nn1stsd_0.0.1";
+    return "nn1stsd_0.0.2";
 }
 // ****************************************************************************
 //  Method: nn1stsdGeneralPluginInfo::EnabledByDefault
@@ -154,6 +154,7 @@ nn1stsdGeneralPluginInfo::GetDefaultFilePatterns() const
 {
     std::vector<std::string> defaultPatterns;
     defaultPatterns.push_back("*.nn1stsd");
+    defaultPatterns.push_back("*.nn1");
 
     return defaultPatterns;
 }

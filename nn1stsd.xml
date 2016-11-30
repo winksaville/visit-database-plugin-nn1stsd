@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
-  <Plugin name="nn1stsd" type="database" label="nn1 single time single domain" version="0.0.1" enabled="true" mdspecificcode="false" engspecificcode="false" onlyengine="false" noengine="false" dbtype="STSD" haswriter="false" hasoptions="false" filePatternsStrict="false" opensWholeDirectory="false">
+  <Plugin name="nn1stsd" type="database" label="nn1" version="0.0.2" enabled="true" mdspecificcode="false" engspecificcode="false" onlyengine="false" noengine="false" dbtype="MTMD" haswriter="false" hasoptions="false" filePatternsStrict="false" opensWholeDirectory="false">
     <FilePatterns>
       *.nn1stsd
+      *.nn1
     </FilePatterns>
     <Attribute name="" purpose="" persistent="true" keyframe="true" exportAPI="" exportInclude="">
     </Attribute>

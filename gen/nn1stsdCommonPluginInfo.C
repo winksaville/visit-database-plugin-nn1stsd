@@ -38,7 +38,7 @@
 
 #include <nn1stsdPluginInfo.h>
 #include <avtnn1stsdFileFormat.h>
-#include <avtSTSDFileFormatInterface.h>
+#include <avtMTMDFileFormatInterface.h>
 #include <avtGenericDatabase.h>
 
 // ****************************************************************************
@@ -54,7 +54,7 @@
 DatabaseType
 nn1stsdCommonPluginInfo::GetDatabaseType()
 {
-    return DB_TYPE_STSD;
+    return DB_TYPE_MTMD;
 }
 
 // ****************************************************************************
@@ -78,18 +78,15 @@ avtDatabase *
 nn1stsdCommonPluginInfo::SetupDatabase(const char *const *list,
                                    int nList, int nBlock)
 {
-    int nTimestep = nList / nBlock;
-    avtSTSDFileFormat ***ffl = new avtSTSDFileFormat**[nTimestep];
-    for (int i = 0 ; i < nTimestep ; i++)
+    // ignore any nBlocks past 1
+    int nTimestepGroups = nList / nBlock;
+    avtMTMDFileFormat **ffl = new avtMTMDFileFormat*[nTimestepGroups];
+    for (int i = 0 ; i < nTimestepGroups ; i++)
     {
-        ffl[i] = new avtSTSDFileFormat*[nBlock];
-        for (int j = 0 ; j < nBlock ; j++)
-        {
-            ffl[i][j] = new avtnn1stsdFileFormat(list[i*nBlock + j]);
-        }
+        ffl[i] = new avtnn1stsdFileFormat(list[i*nBlock]);
     }
-    avtSTSDFileFormatInterface *inter 
-           = new avtSTSDFileFormatInterface(ffl, nTimestep, nBlock);
+    avtMTMDFileFormatInterface *inter 
+           = new avtMTMDFileFormatInterface(ffl, nTimestepGroups);
     return new avtGenericDatabase(inter);
 }
 // ****************************************************************************
