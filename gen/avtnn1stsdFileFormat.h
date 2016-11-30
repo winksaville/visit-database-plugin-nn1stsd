@@ -92,19 +92,18 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
     void                  ActivateTimestep(void) override;
 
   protected:
-    // DATA MEMBERS
-    const char* fileName;
 
     virtual void           PopulateDatabaseMetaData(avtDatabaseMetaData *);
 
   private:
-    void                   ReadFile(void);
     void                   OpenFile(void);
+    void                   CloseFile(void);
+    void                   ReadFile(void);
     void                   DumpVarNames(void);
     void                   DumpData(void);
 
     void Initialize() {
-      if (!mInitialized && (mFileName != NULL)) {
+      if (!mInitialized && (filename != NULL)) {
         debug5 << "Initializing" << endl;
         OpenFile();
         mInitialized = mFile.is_open();
@@ -113,7 +112,6 @@ class avtnn1stsdFileFormat : public avtSTSDFileFormat
     }
 
     ifstream mFile;
-    const char* mFileName = NULL;
     const char* mMeshName = NULL;
     bool mInitialized = false;
     std::vector< std::vector<float> > mData;

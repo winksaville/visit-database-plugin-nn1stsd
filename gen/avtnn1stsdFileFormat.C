@@ -78,11 +78,10 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *filename)
     : avtSTSDFileFormat(filename)
 {
     // INITIALIZE DATA MEMBERS
-    printf("avtnn1stsdFileFormat::ctor filename=%s\n", filename);
     debug5 << "avtnn1stsdFileFormat::ctor:+ filename=" << filename << endl;
 
     mInitialized = false;
-    mFileName = filename;
+    filename = filename;
 
     debug5 << "avtnn1stsdFileFormat::ctor:- filename=" << filename << endl;
 }
@@ -106,6 +105,18 @@ void
 avtnn1stsdFileFormat::FreeUpResources(void)
 {
     debug5 << "avtnn1stsdFileFormat::FreeUpResources:+" << endl;
+
+    CloseFile();
+
+    mMeshName = NULL;
+    mInitialized = false;
+    for (int i = 0; i < mData.size(); i++) {
+      mData[i].clear();
+    }
+    mData.clear();
+    mVariableNames.clear();
+    mFileRead = false;
+
     debug5 << "avtnn1stsdFileFormat::FreeUpResources:-" << endl;
 }
 
@@ -126,7 +137,6 @@ avtnn1stsdFileFormat::FreeUpResources(void)
 void
 avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
 {
-    printf("avtnn1stsdFileFormat::PolulateDatabaseMetaData:+\n");
     debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << endl;
 
     ReadFile();
@@ -232,7 +242,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
     //KineticEnergy_expr.SetDefinition("0.5*(momentum*momentum)/(rho*rho)");
     //KineticEnergy_expr.SetType(Expression::ScalarMeshVar);
     //md->AddExpression(&KineticEnergy_expr);
-    printf("avtnn1stsdFileFormat::PolulateDatabaseMetaData:-\n");
+
     debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << endl;
 }
 
@@ -257,7 +267,6 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md)
 vtkDataSet *
 avtnn1stsdFileFormat::GetMesh(const char *meshname)
 {
-    cerr << "avtnn1stsdFileFormat::GetMesh:+ " << meshname << endl;
     debug5 << "avtnn1stsdFileFormat::GetMesh:+ " << meshname << endl;
 
     if (strcmp(meshname, mMeshName) != 0) {
@@ -289,7 +298,6 @@ avtnn1stsdFileFormat::GetMesh(const char *meshname)
         verts->InsertCellPoint(i);
     }
 
-    cerr << "avtnn1stsdFileFormat::GetMesh:- " << meshname << endl;
     debug5 << "avtnn1stsdFileFormat::GetMesh:- " << meshname << endl;
     return pPolyData;
 }
@@ -314,7 +322,6 @@ avtnn1stsdFileFormat::GetMesh(const char *meshname)
 vtkDataArray *
 avtnn1stsdFileFormat::GetVar(const char *varname)
 {
-    cerr << "avtnn1stsdFileFormat::GetVar:+ " << varname << endl;
     debug5 << "avtnn1stsdFileFormat::GetVar:+ " << varname << endl;
 
     //
@@ -344,12 +351,11 @@ avtnn1stsdFileFormat::GetVar(const char *varname)
 
     for (int i = 0 ; i < ntuples ; i++) {
       float val = mData[i][variableIdx];
-      cerr << "avtnn1stsdFileFormat::GetVar: " << varname << "[" << i << "]="
+      debug5 << "avtnn1stsdFileFormat::GetVar: " << varname << "[" << i << "]="
         << val << endl;
       rv->SetTuple1(i, val);
     }
 
-    cerr << "avtnn1stsdFileFormat::GetVar:- " << varname << endl;
     debug5 << "avtnn1stsdFileFormat::GetVar:- " << varname << endl;
     return rv;
 }
@@ -374,8 +380,8 @@ avtnn1stsdFileFormat::GetVar(const char *varname)
 vtkDataArray *
 avtnn1stsdFileFormat::GetVectorVar(const char *varname)
 {
-    //YOU MUST IMPLEMENT THIS
-    return 0;
+    // Not neccessary since we have implemented GetVar
+    return NULL;
 
     //
     // If you have a file format where variables don't apply (for example a
@@ -417,22 +423,18 @@ avtnn1stsdFileFormat::GetVectorVar(const char *varname)
 void
 avtnn1stsdFileFormat::OpenFile(void)
 {
-    printf("avtnn1stsdFileFormat::OpenFile filename=%s\n", filename);
     debug5 << "avtnn1stsdFileFormat::OpenFile:+ filename='" << filename << "'" << endl;
 
-    if (mFileName != NULL) {
-      mFile.open(mFileName, ios::in);
+    if (filename != NULL) {
+      mFile.open(filename, ios::in);
       if (mFile.is_open()) {
         std::stringstream s;
-        s << "avtnn1stsdFileFormat::OpenFile opened '" << filename << "'" << endl;
-        debug1 << s.str();
-        cerr << s.str();
+        debug5 << "avtnn1stsdFileFormat::OpenFile opened '" << filename << "'" << endl;
       } else {
         std::stringstream s;
         s << "avtnn1stsdFileFormat::OpenFile: error opening '"
-          << mFileName << "' err=" << strerror(errno) << endl;
-        debug1 << s.str();
-        cerr << s.str();
+          << filename << "' err=" << strerror(errno) << endl;
+        debug5 << s.str();
         EXCEPTION1(InvalidDBTypeException, s.str().c_str());
       }
 
@@ -444,31 +446,27 @@ avtnn1stsdFileFormat::OpenFile(void)
 }
 
 // ****************************************************************************
-//  Method: OpenFile
+//  Method: CloseFile
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::DumpVarNames(void)
+avtnn1stsdFileFormat::CloseFile(void)
 {
-  for (int i = 0; i < mVariableNames.size(); i++) {
-    cerr << std::right << setw(8) << mVariableNames[i];
-    cerr << "    ";
-  }
-  cerr << endl;
+    debug5 << "avtnn1stsdFileFormat::CloseFile:+ filename='" << filename << "'" << endl;
+
+    if (mFile.is_open()) {
+      mFile.close();
+      debug5 << "avtnn1stsdFileFormat::CloseFile:- " << filename << " closed " << endl;
+    } else {
+      debug5 << "avtnn1stsdFileFormat::CloseFile:- " << filename << " is not open" << endl;
+    }
+
+    debug5 << "avtnn1stsdFileFormat::CloseFile:- filename='" << filename << "'" << endl;
 }
 
-void
-avtnn1stsdFileFormat::DumpData(void)
-{
-  for (int i = 0; i < mData.size(); i++) {
-    for (int j = 0; j < mData[i].size(); j++) {
-      if (j != 0) cerr << "  ";
-      cerr << std::fixed << std::showpoint << std::right << setw(10) << setprecision(6)
-        << mData[i][j];
-    }
-    cerr << endl;
-  }
-}
+// ****************************************************************************
+//  Method: OpenFile
+// ****************************************************************************
 
 void
 avtnn1stsdFileFormat::ReadFile(void)
@@ -509,11 +507,44 @@ avtnn1stsdFileFormat::ReadFile(void)
 
       num += 1;
     }
+    mFileRead = true;
+
+    CloseFile();
 
     DumpVarNames();
     DumpData();
 
-    mFileRead = true;
+}
+
+// ****************************************************************************
+//  Method: DumpVarNames
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::DumpVarNames(void)
+{
+  for (int i = 0; i < mVariableNames.size(); i++) {
+    debug5 << std::right << setw(8) << mVariableNames[i];
+    debug5 << "    ";
+  }
+  debug5 << endl;
+}
+
+// ****************************************************************************
+//  Method: DumpData
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::DumpData(void)
+{
+  for (int i = 0; i < mData.size(); i++) {
+    for (int j = 0; j < mData[i].size(); j++) {
+      if (j != 0) debug5 << "  ";
+      debug5 << std::fixed << std::showpoint << std::right << setw(10) << setprecision(6)
+        << mData[i][j];
+    }
+    debug5 << endl;
+  }
 }
 
 // ****************************************************************************
