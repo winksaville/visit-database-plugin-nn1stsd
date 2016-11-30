@@ -153,7 +153,7 @@ std::vector<std::string>
 nn1stsdGeneralPluginInfo::GetDefaultFilePatterns() const
 {
     std::vector<std::string> defaultPatterns;
-    defaultPatterns.push_back("nn1stsd");
+    defaultPatterns.push_back("*.nn1stsd");
 
     return defaultPatterns;
 }
