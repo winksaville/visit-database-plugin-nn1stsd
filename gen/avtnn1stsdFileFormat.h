@@ -92,28 +92,19 @@ class avtnn1stsdFileFormat : public avtMTMDFileFormat
     virtual vtkDataArray  *GetVar(int, int, const char *);
     virtual vtkDataArray  *GetVectorVar(int, int, const char *);
 
-    void                  ActivateTimestep(void) override;
+    virtual void          ActivateTimestep(int ts);
 
   protected:
 
     virtual void           PopulateDatabaseMetaData(avtDatabaseMetaData *, int);
 
   private:
-    void                   OpenFile(void);
+    void                   Initialize(int ts);
+    void                   OpenFile(int ts);
     void                   CloseFile(void);
     void                   ReadFile(void);
     void                   DumpVarNames(void);
     void                   DumpData(void);
-
-    void Initialize() {
-      debug5 << "Initialized:+ mInitialized=" << mInitialized << " filename=" << filename << endl;
-      if (!mInitialized && (filename != NULL)) {
-        OpenFile();
-        mInitialized = mFile.is_open();
-        debug5 << "Initialize: mInitialized=" << mInitialized << endl;
-      }
-      debug5 << "Initialized:- mInitialized=" << mInitialized << " filename=" << filename << endl;
-    }
 
     ifstream mFile;
     const char* mMeshName = NULL;

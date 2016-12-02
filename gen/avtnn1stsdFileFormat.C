@@ -99,7 +99,13 @@ avtnn1stsdFileFormat::avtnn1stsdFileFormat(const char *fn)
 int
 avtnn1stsdFileFormat::GetNTimesteps(void)
 {
-    return 1;
+  debug5 << "avtnn1stsdFileFormat::GetNTimesteps:+" << endl;
+
+  // TODO: Right now always assume 2 timesteps
+  int count = 2;
+
+  debug5 << "avtnn1stsdFileFormat::GetNTimesteps:- " << count << endl;
+  return count;
 }
 
 
@@ -124,7 +130,6 @@ avtnn1stsdFileFormat::FreeUpResources(void)
 
     CloseFile();
 
-    mMeshName = NULL;
     mInitialized = false;
     for (int i = 0; i < mData.size(); i++) {
       mData[i].clear();
@@ -151,12 +156,11 @@ avtnn1stsdFileFormat::FreeUpResources(void)
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int timestate)
+avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int ts)
 {
-    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << " ts=" << timestate << endl;
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << " ts=" << ts << endl;
 
-    Initialize();
-
+    Initialize(ts);
     ReadFile();
 
     mMeshName = "NN";
@@ -261,7 +265,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int time
     //KineticEnergy_expr.SetType(Expression::ScalarMeshVar);
     //md->AddExpression(&KineticEnergy_expr);
 
-    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << " ts=" << timestate << endl;
+    debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:- md=" << md << " ts=" << ts << endl;
 }
 
 
@@ -450,32 +454,60 @@ avtnn1stsdFileFormat::GetVectorVar(int timestate, int domain,const char *varname
 }
 
 // ****************************************************************************
+//  Method: Initialize
+// ****************************************************************************
+
+void
+avtnn1stsdFileFormat::Initialize(int ts) {
+  debug5 << "Initialized:+ " << ts << " mInitialized=" << mInitialized << " filename=" << filename << endl;
+  if (!mInitialized && (filename != NULL)) {
+    OpenFile(ts);
+    mInitialized = mFile.is_open();
+    debug5 << "Initialize: " << ts << " mInitialized=" << mInitialized << endl;
+  }
+  debug5 << "Initialized:- " << ts << " mInitialized=" << mInitialized << " filename=" << filename << endl;
+}
+
+// ****************************************************************************
 //  Method: OpenFile
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::OpenFile(void)
+avtnn1stsdFileFormat::OpenFile(int ts)
 {
-    debug5 << "avtnn1stsdFileFormat::OpenFile:+ filename='" << filename << "'" << endl;
+    debug5 << "avtnn1stsdFileFormat::OpenFile:+ ts=" << ts << endl;
 
     if (filename != NULL) {
+      // TODO: Right now always assume a numeric filename
+      char n[256];
+      snprintf(n, sizeof(n), "t%04d.nn1", ts);
+      std::string fname(n);
+      std::string path(filename);
+      size_t last_slash = path.find_last_of("/");
+      if (last_slash != std::string::npos) {
+        fname = path.substr(0, last_slash) + "/" + fname;
+      }
+      free(filename);
+      filename = strdup(fname.c_str());
+
+      debug5 << "avtnn1stsdFileFormat::OpenFile:+ ts=" << ts << " filename='" << filename << "'" << endl;
       mFile.open(filename, ios::in);
       if (mFile.is_open()) {
         std::stringstream s;
-        debug5 << "avtnn1stsdFileFormat::OpenFile opened '" << filename << "'" << endl;
+        debug5 << "avtnn1stsdFileFormat::OpenFile ts=" << ts << " opened '" << filename << "'" << endl;
       } else {
         std::stringstream s;
-        s << "avtnn1stsdFileFormat::OpenFile: error opening '"
+        s << "avtnn1stsdFileFormat::OpenFile: ts=" << ts << " error opening '"
           << filename << "' err=" << strerror(errno) << endl;
         debug5 << s.str();
         EXCEPTION1(InvalidDBTypeException, s.str().c_str());
       }
 
     } else {
-      debug5 << "avtnn1stsdFileFormat::OpenFile:  mFileName is NULL" << endl;
+      debug5 << "avtnn1stsdFileFormat::OpenFile: ts=" << ts << " filename is NULL" << endl;
     }
 
-    debug5 << "avtnn1stsdFileFormat::OpenFile:- filename='" << filename << "'" << endl;
+    debug5 << "avtnn1stsdFileFormat::OpenFile:- ts=" << ts << " filename='" << filename << "'" << endl;
 }
 
 // ****************************************************************************
@@ -586,11 +618,12 @@ avtnn1stsdFileFormat::DumpData(void)
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::ActivateTimestep(void)
+avtnn1stsdFileFormat::ActivateTimestep(int ts)
 {
-    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:+" << endl;
+    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:+ ts=" << ts << endl;
 
-    Initialize();
+    Initialize(ts);
+    ReadFile();
 
-    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:-" << endl;
+    debug5 << "avtnn1stsdFileFormat::ActivateTimestep:- ts=" << ts << endl;
 }
