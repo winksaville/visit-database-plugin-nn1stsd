@@ -64,7 +64,7 @@ class avtnn1stsdFileFormat : public avtMTMDFileFormat
 {
   public:
                        avtnn1stsdFileFormat(const char *filename);
-    virtual           ~avtnn1stsdFileFormat() {;};
+    virtual           ~avtnn1stsdFileFormat(void);
 
     //
     // This is used to return unconvention data -- ranging from material
@@ -107,6 +107,8 @@ class avtnn1stsdFileFormat : public avtMTMDFileFormat
     void                   DumpData(void);
 
     ifstream mFile;
+    int mEpochs;
+    int mPointsPerEpoch;
     const char* mMeshName = NULL;
     bool mInitialized = false;
     std::vector< std::vector<float> > mData;
