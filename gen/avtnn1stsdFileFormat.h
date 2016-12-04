@@ -99,8 +99,8 @@ class avtnn1stsdFileFormat : public avtMTMDFileFormat
     virtual void           PopulateDatabaseMetaData(avtDatabaseMetaData *, int);
 
   private:
-    void                   Initialize(int ts);
-    void                   OpenFile(int ts);
+    void                   Initialize();
+    void                   OpenFile();
     void                   CloseFile(void);
     void                   ReadFile(void);
     void                   DumpVarNames(void);

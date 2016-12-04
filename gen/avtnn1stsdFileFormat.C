@@ -122,9 +122,8 @@ avtnn1stsdFileFormat::GetNTimesteps(void)
 {
   debug5 << "avtnn1stsdFileFormat::GetNTimesteps:+" << endl;
 
-  Initialize(0);
+  Initialize();
   ReadFile();
-
 
   debug5 << "avtnn1stsdFileFormat::GetNTimesteps:- " << mEpochs << endl;
   return mEpochs;
@@ -172,7 +171,7 @@ avtnn1stsdFileFormat::PopulateDatabaseMetaData(avtDatabaseMetaData *md, int ts)
 {
     debug5 << "avtnn1stsdFileFormat::PopulateDatabaseMetaData:+ md=" << md << " ts=" << ts << endl;
 
-    Initialize(0);
+    Initialize();
     ReadFile();
 
     mMeshName = "NN";
@@ -472,14 +471,14 @@ avtnn1stsdFileFormat::GetVectorVar(int timestate, int domain,const char *varname
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::Initialize(int ts) {
-  debug5 << "Initialized:+ " << ts << " mInitialized=" << mInitialized << " filename=" << filename << endl;
+avtnn1stsdFileFormat::Initialize() {
+  debug5 << "Initialized:+ mInitialized=" << mInitialized << " filename=" << filename << endl;
   if (!mInitialized && (filename != NULL)) {
-    OpenFile(ts);
+    OpenFile();
     mInitialized = mFile.is_open();
-    debug5 << "Initialize: " << ts << " mInitialized=" << mInitialized << endl;
+    debug5 << "Initialize: mInitialized=" << mInitialized << endl;
   }
-  debug5 << "Initialized:- " << ts << " mInitialized=" << mInitialized << " filename=" << filename << endl;
+  debug5 << "Initialized:- mInitialized=" << mInitialized << " filename=" << filename << endl;
 }
 
 // ****************************************************************************
@@ -487,29 +486,29 @@ avtnn1stsdFileFormat::Initialize(int ts) {
 // ****************************************************************************
 
 void
-avtnn1stsdFileFormat::OpenFile(int ts)
+avtnn1stsdFileFormat::OpenFile()
 {
-    debug5 << "avtnn1stsdFileFormat::OpenFile:+ ts=" << ts << endl;
+    debug5 << "avtnn1stsdFileFormat::OpenFile:+" << endl;
 
     if (filename != NULL) {
-      debug5 << "avtnn1stsdFileFormat::OpenFile:+ ts=" << ts << " filename='" << filename << "'" << endl;
+      debug5 << "avtnn1stsdFileFormat::OpenFile:+ filename='" << filename << "'" << endl;
       mFile.open(filename, ios::in);
       if (mFile.is_open()) {
         std::stringstream s;
-        debug5 << "avtnn1stsdFileFormat::OpenFile ts=" << ts << " opened '" << filename << "'" << endl;
+        debug5 << "avtnn1stsdFileFormat::OpenFile opened '" << filename << "'" << endl;
       } else {
         std::stringstream s;
-        s << "avtnn1stsdFileFormat::OpenFile: ts=" << ts << " error opening '"
+        s << "avtnn1stsdFileFormat::OpenFile: error opening '"
           << filename << "' err=" << strerror(errno) << endl;
         debug5 << s.str();
         EXCEPTION1(InvalidDBTypeException, s.str().c_str());
       }
 
     } else {
-      debug5 << "avtnn1stsdFileFormat::OpenFile: ts=" << ts << " filename is NULL" << endl;
+      debug5 << "avtnn1stsdFileFormat::OpenFile: filename is NULL" << endl;
     }
 
-    debug5 << "avtnn1stsdFileFormat::OpenFile:- ts=" << ts << " filename='" << filename << "'" << endl;
+    debug5 << "avtnn1stsdFileFormat::OpenFile:- filename='" << filename << "'" << endl;
 }
 
 // ****************************************************************************
@@ -544,55 +543,64 @@ avtnn1stsdFileFormat::ReadFile(void)
 
     mFile.read((char*)&mEpochs, sizeof(mEpochs));
     if (!mFile.good()) {
-      debug5 << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
+      std::stringstream s;
+      s << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
         << " reading mEpochs" << endl;
-      return;
+      EXCEPTION1(InvalidVariableException, s.str());
     }
-    debug5 << "avtnn1stsdFileFormat::ReadFile:+ mEpochs=" << mEpochs << endl;
+
     mFile.read((char*)&mPointsPerEpoch, sizeof(mPointsPerEpoch));
     if (!mFile.good()) {
-      debug5 << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
+      std::stringstream s;
+      s << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
         << " reading mPointsPerEpoch" << endl;
-      return;
+      EXCEPTION1(InvalidVariableException, s.str());
     }
-    debug5 << "avtnn1stsdFileFormat::ReadFile:+ mPointsPerEpoch=" << mPointsPerEpoch << endl;
 
-    // Read each line
-    int line_num = 0;
-    int numColumns = 0;
+    // Read a line which as the variable names
     string line;
-    while (getline(mFile, line)) {
-      //cout << "line " << line_num << ": " << line << endl;
-
-      // Parse each line, the first line contains
-      // the variable names.
-      std::stringstream s(line);
-      string v;
-      std::vector<float> row;
-      while (s >> v) {
-        if (line_num == 0) {
-          // Read variable names
-          mVariableNames.push_back(v);
-          debug5 << "avtnn1stsdFileFormat::ReadFile:+ name =" << v << endl;
-        } else {
-          // Read a row
-          float fv = atof(v.c_str());
-          row.push_back(fv);
-        }
-      }
-      if (line_num > 2) {
-        mData.push_back(row);
-      }
-
-      line_num += 1;
+    if (!getline(mFile, line)) {
+      std::stringstream s;
+      s << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
+        << " reading variable names" << endl;
+      EXCEPTION1(InvalidVariableException, s.str());
     }
-    numColumns = mVariableNames.size();
+
+    // Parse out the variable names
+    std::stringstream s(line);
+    string v;
+    while (s >> v) {
+      mVariableNames.push_back(v);
+    }
+
+    // Read each point which is 4 floats: x, y, z and value
+    // and add it to mData
+    int dataSize = mEpochs * mPointsPerEpoch * 4;
+
+    mData.clear();
+    for (int d = 0; d < dataSize; d++) {
+      // Read into an array
+      float row[4];
+      mFile.read((char*)&row, sizeof(row));
+      if (!mFile.good()) {
+        std::stringstream s;
+        s << "avtnn1stsdFileFormat::ReadFile:- Error " << strerror(errno)
+          << " reading mData[" << d << "]" << endl;
+        EXCEPTION1(InvalidVariableException, s.str());
+      }
+
+      // Create a vector and push the vector
+      std::vector< float > vrow(&row[0], &row[4]);
+      mData.push_back(vrow);
+    }
+
+    int numColumns = mVariableNames.size();
     mFileRead = true;
 
     CloseFile();
 
-    DumpVarNames();
-    DumpData();
+    //DumpVarNames();
+    //DumpData();
 }
 
 // ****************************************************************************
@@ -602,9 +610,10 @@ avtnn1stsdFileFormat::ReadFile(void)
 void
 avtnn1stsdFileFormat::DumpVarNames(void)
 {
+  debug5 << "DumpData: dataSize=" << mData.size() << endl;
   for (int i = 0; i < mVariableNames.size(); i++) {
+    if (i != 0) debug5 << "    ";
     debug5 << std::right << setw(8) << mVariableNames[i];
-    debug5 << "    ";
   }
   debug5 << endl;
 }
@@ -617,6 +626,8 @@ void
 avtnn1stsdFileFormat::DumpData(void)
 {
   for (int i = 0; i < mData.size(); i++) {
+    int rowSize = mData[i].size();
+    debug5 << i << " " << rowSize << ": ";
     for (int j = 0; j < mData[i].size(); j++) {
       if (j != 0) debug5 << "  ";
       debug5 << std::fixed << std::showpoint << std::right << setw(10) << setprecision(6)
